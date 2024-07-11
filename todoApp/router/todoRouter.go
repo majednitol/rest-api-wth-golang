@@ -1,6 +1,5 @@
 package router
-// import "todoApp/controller"
-// import "todoApp/model"
+
 import (
 	"todoApp/controller"
 
