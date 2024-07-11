@@ -7,10 +7,10 @@ import (
 )
 
 // SetupRouter initializes the router and sets up the routes
-func SetupRouter() *mux.Router { 
+func SetupRouter() *mux.Router {
 	router := mux.NewRouter()
 
-	// Route handles & endpoints
+	// Define routes and associate with controller functions
 	router.HandleFunc("/tasks", controller.GetTasks).Methods("GET")
 	router.HandleFunc("/tasks/{id}", controller.GetTask).Methods("GET")
 	router.HandleFunc("/tasks", controller.CreateTask).Methods("POST")

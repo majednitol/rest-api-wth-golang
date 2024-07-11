@@ -5,60 +5,62 @@ import (
 	"net/http"
 	"todoApp/model"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
 // GetTasks returns all tasks
 func GetTasks(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(model.Tasks)
+	tasks, err := model.GetTasks()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(tasks)
 }
 
 // GetTask returns a single task by ID
 func GetTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for _, item := range model.Tasks {
-		if item.ID == params["id"] {
-			json.NewEncoder(w).Encode(item)
-			return
-		}
+	task, err := model.GetTask(params["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	json.NewEncoder(w).Encode(&model.Task{})
+	json.NewEncoder(w).Encode(task)
 }
 
 // CreateTask creates a new task
 func CreateTask(w http.ResponseWriter, r *http.Request) {
 	var task model.Task
 	_ = json.NewDecoder(r.Body).Decode(&task)
-	task.ID = uuid.New().String() // Generate UUID for new task
-	model.Tasks = append(model.Tasks, task)
-	json.NewEncoder(w).Encode(model.Tasks)
+	result, err := model.CreateTask(task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(result)
 }
 
 // UpdateTask updates an existing task by ID
 func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for index, item := range model.Tasks {
-		if item.ID == params["id"] {
-			model.Tasks = append(model.Tasks[:index], model.Tasks[index+1:]...)
-			var task model.Task
-			_ = json.NewDecoder(r.Body).Decode(&task)
-			task.ID = params["id"]
-			model.Tasks = append(model.Tasks, task)
-			json.NewEncoder(w).Encode(model.Tasks)
-			return
-		}
+	var task model.Task
+	_ = json.NewDecoder(r.Body).Decode(&task)
+	result, err := model.UpdateTask(params["id"], task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+	json.NewEncoder(w).Encode(result)
 }
 
 // DeleteTask deletes a task by ID
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for index, item := range model.Tasks {
-		if item.ID == params["id"] {
-			model.Tasks = append(model.Tasks[:index], model.Tasks[index+1:]...)
-			break
-		}
+	result, err := model.DeleteTask(params["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	json.NewEncoder(w).Encode(model.Tasks)
+	json.NewEncoder(w).Encode(result)
 }
