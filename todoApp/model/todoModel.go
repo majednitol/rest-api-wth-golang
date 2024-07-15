@@ -3,12 +3,10 @@ package model
 import (
 	"context"
 	"log"
-	
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Task struct represents a task in the TODO list
@@ -20,7 +18,7 @@ type Task struct {
 
 var taskCollection *mongo.Collection
 
-// Initialize the task collection 
+// Initialize the task collection
 func Initialize(client *mongo.Client) {
 	taskCollection = client.Database("tododb").Collection("tasks")
 }
