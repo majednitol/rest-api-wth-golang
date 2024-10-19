@@ -9,58 +9,58 @@ import (
 )
 
 // GetTasks returns all tasks
-func GetTasks(w http.ResponseWriter, r *http.Request) {
+func GetTasks(res http.ResponseWriter, req *http.Request) {
 	tasks, err := model.GetTasks()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(tasks)
+	json.NewEncoder(res).Encode(tasks)
 }
 
 // GetTask returns a single task by ID
-func GetTask(w http.ResponseWriter, r *http.Request) {
+func GetTask(res http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	task, err := model.GetTask(params["id"])
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(task)
+	json.NewEncoder(res).Encode(task)
 }
 
 // CreateTask creates a new task
-func CreateTask(w http.ResponseWriter, r *http.Request) {
+func CreateTask(res http.ResponseWriter, r *http.Request) {
 	var task model.Task
 	_ = json.NewDecoder(r.Body).Decode(&task)
 	result, err := model.CreateTask(task)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(result)
+	json.NewEncoder(res).Encode(result)
 }
 
 // UpdateTask updates an existing task by ID
-func UpdateTask(w http.ResponseWriter, r *http.Request) {
+func UpdateTask(res http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var task model.Task
 	_ = json.NewDecoder(r.Body).Decode(&task)
 	result, err := model.UpdateTask(params["id"], task)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(result)
+	json.NewEncoder(res).Encode(result)
 }
 
 // DeleteTask deletes a task by ID
-func DeleteTask(w http.ResponseWriter, r *http.Request) {
+func DeleteTask(res http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	result, err := model.DeleteTask(params["id"])
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(res, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(result)
+	json.NewEncoder(res).Encode(result)
 }

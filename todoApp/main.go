@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	
-	"todoApp/router"
+
 	"todoApp/model"
+	"todoApp/router"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
