@@ -2,20 +2,27 @@ package router
 
 import (
 	"todoApp/controller"
+	"todoApp/middleware"
 
 	"github.com/gorilla/mux"
 )
 
-// SetupRouter initializes the router and sets up the routes
+// SetupRouter initializes the router
 func SetupRouter() *mux.Router {
 	router := mux.NewRouter()
 
-	// Define routes and associate with controller functions
-	router.HandleFunc("/tasks", controller.GetTasks).Methods("GET")
-	router.HandleFunc("/tasks/{id}", controller.GetTask).Methods("GET")
-	router.HandleFunc("/tasks", controller.CreateTask).Methods("POST")
-	router.HandleFunc("/tasks/{id}", controller.UpdateTask).Methods("PUT")
-	router.HandleFunc("/tasks/{id}", controller.DeleteTask).Methods("DELETE")
+	// Public routes
+	router.HandleFunc("/login", controller.Login).Methods("POST")
+	router.HandleFunc("/register", controller.Register).Methods("POST")
+
+	// Protected routes
+	api := router.PathPrefix("/api").Subrouter()
+	api.Use(middleware.AuthMiddleware)
+	api.HandleFunc("/tasks", controller.GetTasks).Methods("GET")
+	api.HandleFunc("/tasks/{id}", controller.GetTask).Methods("GET")
+	api.HandleFunc("/tasks", controller.CreateTask).Methods("POST")
+	api.HandleFunc("/tasks/{id}", controller.UpdateTask).Methods("PUT")
+	api.HandleFunc("/tasks/{id}", controller.DeleteTask).Methods("DELETE")
 
 	return router
 }
