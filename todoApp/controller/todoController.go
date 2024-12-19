@@ -27,7 +27,7 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	task, err := model.GetTask(params["id"])
 	if err != nil {
-		SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		SendErrorResponse(w, http.StatusNotFound, err.Error())
 		return
 	}
 	

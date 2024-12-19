@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"todoApp/middleware"
 	"todoApp/model"
 	"todoApp/router"
 
@@ -14,9 +15,10 @@ import (
 )
 
 func main() {
-	mongoURI := os.Getenv("MONGO_URI") // Use environment variable for MongoDB URI
+	// MongoDB connection URI
+	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
-		log.Fatal("MONGO_URI environment variable is not set")
+		mongoURI = "mongodb://mongo:27017"
 	}
 
 	clientOptions := options.Client().ApplyURI(mongoURI)
@@ -36,10 +38,14 @@ func main() {
 
 	fmt.Println("Connected to MongoDB!")
 
+	// Initialize model
 	model.Initialize(client)
 
+	// Set up router
 	r := router.SetupRouter()
+	handler := middleware.LoggingMiddleware(middleware.RecoverMiddleware(r))
 
+	// Start the server
 	fmt.Println("Server running on port 3000")
-	log.Fatal(http.ListenAndServe(":3000", r))
+	log.Fatal(http.ListenAndServe(":3000", handler))
 }

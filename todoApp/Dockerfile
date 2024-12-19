@@ -1,6 +1,7 @@
 # Use the official golang image based on Alpine as a base image
 FROM golang:alpine
 
+
 # Install necessary tools
 RUN apk add --no-cache git
 

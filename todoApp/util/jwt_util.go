@@ -2,13 +2,11 @@ package util
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
-
-// Define custom error for expired tokens
-var ErrExpiredToken = errors.New("token has expired")
 
 var jwtKey = []byte("your_secret_key")
 
@@ -21,7 +19,7 @@ func GenerateJWT(userID string) (string, error) {
 	return token.SignedString(jwtKey)
 }
 
-// ValidateJWT validates a JWT token
+// ValidateJWT validates a JWT token and identifies errors
 func ValidateJWT(tokenStr string) (string, error) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -31,13 +29,15 @@ func ValidateJWT(tokenStr string) (string, error) {
 	})
 
 	if err != nil {
-		// Check if the error is because of token expiration
 		if ve, ok := err.(*jwt.ValidationError); ok {
-			if ve.Errors&jwt.ValidationErrorExpired != 0 {
-				return "", ErrExpiredToken // Return custom error for expired token
+			switch {
+			case ve.Errors&jwt.ValidationErrorExpired != 0:
+				return "", errors.New("token expired")
+			case ve.Errors&jwt.ValidationErrorSignatureInvalid != 0:
+				return "", errors.New("invalid token signature")
 			}
 		}
-		return "", errors.New("invalid token") // General invalid token error
+		return "", fmt.Errorf("token parse error: %v", err)
 	}
 
 	if !token.Valid {
@@ -45,9 +45,21 @@ func ValidateJWT(tokenStr string) (string, error) {
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok || claims["userID"] == nil {
+	if !ok {
 		return "", errors.New("invalid token claims")
 	}
 
-	return claims["userID"].(string), nil
+	// Validate exp claim
+	exp, ok := claims["exp"].(float64)
+	if !ok || int64(exp) < time.Now().Unix() {
+		return "", errors.New("token has expired or is invalid")
+	}
+
+	// Extract and validate userID
+	userID, ok := claims["userID"].(string)
+	if !ok {
+		return "", errors.New("invalid token claims")
+	}
+
+	return userID, nil
 }

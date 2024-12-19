@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"todoApp/util"
 )
 
-// AuthMiddleware verifies the JWT token
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -16,10 +16,21 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		token := strings.TrimPrefix(authHeader, "Bearer ")
+		fmt.Println("Raw Authorization Header:", authHeader)
+
+		// Normalize the Authorization header by removing duplicate "Bearer"
+		parts := strings.Fields(authHeader) // Split by spaces
+		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+			http.Error(w, "Invalid authorization header format", http.StatusUnauthorized)
+			return
+		}
+
+		token := parts[1] // Extract the token
+		fmt.Println("Extracted Token:", token)
+
 		userID, err := util.ValidateJWT(token)
 		if err != nil {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 
