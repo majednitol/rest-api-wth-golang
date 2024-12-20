@@ -18,7 +18,7 @@ func main() {
 	// MongoDB connection URI
 	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
-		mongoURI = "mongodb://mongo:27017"
+		mongoURI = "mongodb://localhost:27017"
 	}
 
 	clientOptions := options.Client().ApplyURI(mongoURI)
@@ -44,7 +44,7 @@ func main() {
 	// Set up router
 	r := router.SetupRouter()
 	handler := middleware.LoggingMiddleware(middleware.RecoverMiddleware(r))
-
+   fmt.Println("Starting")
 	// Start the server
 	fmt.Println("Server running on port 3000")
 	log.Fatal(http.ListenAndServe(":3000", handler))
